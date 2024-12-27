@@ -23,6 +23,23 @@ See [example.cfg](example.cfg) for more information.
 
 `build/nvidia-fan-control example.cfg` to start the program. If you'd like run it as a systemd service, see [service.md](service.md).
 
+## Installation
+
+1. Default installation:
+```
+sudo make install
+```
+
+2. Custom installation:
+```
+sudo make install PREFIX=/usr/local SYSCONFDIR=/etc
+```
+
+3. Uninstall:
+```
+sudo make uninstall
+```
+
 ## Troubleshooting
 
 - if you get insufficient permissions error, try to run it as root

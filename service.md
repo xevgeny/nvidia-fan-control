@@ -1,6 +1,14 @@
 # Running nvidia-fan-control as a systemd service
 
-Create a new file at /etc/systemd/system/nvidia-fan-control.service:
+1. Install the program:
+
+```
+sudo make install
+```
+
+By default, the program will be installed to `/usr/local/bin` and the config file will be installed to `/etc/nvidia-fan-control`.
+
+2. Create a new file at /etc/systemd/system/nvidia-fan-control.service:
 
 ```
 [Unit]
@@ -20,7 +28,7 @@ StandardError=journal
 WantedBy=multi-user.target
 ```
 
-Enable and start the service:
+3. Enable and start the service:
 
 ```
 sudo systemctl daemon-reload
@@ -28,14 +36,8 @@ sudo systemctl enable nvidia-fan-control.service
 sudo systemctl start nvidia-fan-control.service
 ``` 
 
-Check service status:
+4. Check service status:
 
 ```
 sudo systemctl status nvidia-fan-control.service
-```
-
-View logs:
-
-```
-journalctl -u nvidia-fan-control.service
 ```
