@@ -17,7 +17,7 @@ app_config_t *config_load(const char *config_file)
 
   if (!config_read_file(&cfg, config_file))
   {
-    fprintf(stderr, "Error reading config file %s: %s\n", config_file, config_error_text(&cfg));
+    fprintf(stderr, "Error: Failed to read config file %s. %s\n", config_file, config_error_text(&cfg));
     config_destroy(&cfg);
     return NULL;
   }
@@ -108,10 +108,10 @@ app_config_t *config_load(const char *config_file)
 
 void config_show(app_config_t *config)
 {
-  printf("-- Device ID: %d\n", config->device_id);
-  printf("-- Interval: %d\n", config->interval);
+  printf("-- Device ID: %3d\n", config->device_id);
+  printf("-- Interval : %3d\n", config->interval);
   for (size_t i = 0; i < config->fan_curve_size; i++)
-    printf("-- Fan curve point: %d°C - %d%%\n", config->fan_curve[i][0], config->fan_curve[i][1]);
+    printf("-- Fan curve point: %3d°C - %3d%%\n", config->fan_curve[i][0], config->fan_curve[i][1]);
 }
 
 void config_free(app_config_t *config)

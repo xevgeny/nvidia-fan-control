@@ -11,6 +11,11 @@ I had been using [GWE](https://gitlab.com/leinardi/gwe) to set custom fan curve 
 - [NVML](https://developer.nvidia.com/management-library-nvml)
 - libconfig
 
+## Troubleshooting
+
+- If you get insufficient permissions error, try to run it as root.
+- On some GPUs setting fan speed below 30% will take no effect.
+
 ## Building and Running Tests
 
 - `make` to build the program

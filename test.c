@@ -1,30 +1,34 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "config.h"
+#include "util.h"
 
-unsigned int calculate_fan_speed(unsigned int temp,
-                                 const unsigned int *temp_curve,
-                                 const unsigned int *fan_curve,
-                                 size_t curve_size);
+void print_curve(unsigned int curve[][2], unsigned int size, unsigned int step)
+{
+  for (unsigned int i = 0; i < size; i += step)
+    printf("Temperature: %3d°C, Fan Speed: %3d%%\n", curve[i][0], curve[i][1]);
+}
 
 void test_basic_curve()
 {
-  const unsigned int temp_curve[] = {30, 50, 70};
-  const unsigned int fan_curve[] = {30, 60, 90};
-  const size_t curve_size = 3;
+  app_config_t config;
+  unsigned int curve[][2] = {{30, 30}, {50, 60}, {70, 90}};
+  config.fan_curve = curve;
+  config.fan_curve_size = sizeof(curve) / sizeof(curve[0]);
 
   // Test exact points
-  assert(calculate_fan_speed(30, temp_curve, fan_curve, curve_size) == 30);
-  assert(calculate_fan_speed(50, temp_curve, fan_curve, curve_size) == 60);
-  assert(calculate_fan_speed(70, temp_curve, fan_curve, curve_size) == 90);
+  assert(calculate_fan_speed(30, &config) == 30);
+  assert(calculate_fan_speed(50, &config) == 60);
+  assert(calculate_fan_speed(70, &config) == 90);
 
   // Test interpolation
-  assert(calculate_fan_speed(40, temp_curve, fan_curve, curve_size) == 45);
-  assert(calculate_fan_speed(60, temp_curve, fan_curve, curve_size) == 75);
+  assert(calculate_fan_speed(40, &config) == 45);
+  assert(calculate_fan_speed(60, &config) == 75);
 
   // Test boundaries
-  assert(calculate_fan_speed(20, temp_curve, fan_curve, curve_size) == 30);
-  assert(calculate_fan_speed(80, temp_curve, fan_curve, curve_size) == 100);
+  assert(calculate_fan_speed(20, &config) == 0);
+  assert(calculate_fan_speed(80, &config) == 100);
 
   printf("✓ Basic curve tests passed\n");
 }
