@@ -1,6 +1,6 @@
 nvidia-fan-control
 ==================
-A tiny C program to control fan speed of NVIDIA GPUs.
+A tiny C program to control fan speed of NVIDIA GPU
 
 - custom fan curve
 - works with both X.org and Wayland
