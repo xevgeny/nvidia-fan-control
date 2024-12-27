@@ -1,3 +1,5 @@
+#include "config.h"
+#include "util.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -5,8 +7,6 @@
 #include <nvml.h>
 #include <assert.h>
 #include <libconfig.h>
-#include "config.h"
-#include "util.h"
 
 volatile sig_atomic_t is_running = 1;
 
@@ -37,8 +37,6 @@ int main()
     if (!config)
         return EXIT_FAILURE;
     config_show(config);
-    if (config_validate(config) != SUCCESS)
-        return EXIT_FAILURE;
 
     // Register signal handlers
     signal(SIGINT, sig_handler);  // Ctrl+C
