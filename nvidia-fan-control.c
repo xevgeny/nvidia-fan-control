@@ -115,10 +115,16 @@ void fan_control_start(app_config_t *config)
   nvmlShutdown();
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+  if (argc != 2)
+  {
+    fprintf(stderr, "Usage: %s <config_file_path>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+
   // Load configuration file
-  app_config_t *config = config_load("example.cfg");
+  app_config_t *config = config_load(argv[1]);
   if (!config)
     return EXIT_FAILURE;
   config_show(config);
