@@ -1,9 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define SUCCESS 0
-#define ERROR -1
-
 typedef struct
 {
   unsigned int device_id;       // GPU device id

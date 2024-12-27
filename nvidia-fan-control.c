@@ -8,13 +8,12 @@
 #include <assert.h>
 #include <libconfig.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 volatile sig_atomic_t is_running = 1;
 
 void sig_handler(int signal)
 {
-  printf("Received signal %d, exiting...\n", signal);
   is_running = 0;
 }
 
@@ -25,9 +24,9 @@ void reset_fan_policy(nvmlDevice_t device, unsigned int num_fans)
   {
     res = nvmlDeviceSetFanControlPolicy(device, i, NVML_FAN_POLICY_TEMPERATURE_CONTINOUS_SW);
     if (res != NVML_SUCCESS)
-      fprintf(stderr, "Error: failed to reset fan policy. %s\n", nvmlErrorString(res));
+      fprintf(stderr, "Error: failed to reset fan policy to NVML_FAN_POLICY_TEMPERATURE_CONTINOUS_SW. %s\n", nvmlErrorString(res));
   }
-  printf("Fan control policy reset to auto.\n");
+  printf("Fan control policy reset to NVML_FAN_POLICY_TEMPERATURE_CONTINOUS_SW.\n");
 }
 
 void fan_control_start(app_config_t *config)
@@ -59,7 +58,6 @@ void fan_control_start(app_config_t *config)
     return;
   }
 
-  // Check current fan control policy
   if (DEBUG)
   {
     nvmlFanControlPolicy_t policy;
@@ -70,7 +68,7 @@ void fan_control_start(app_config_t *config)
       nvmlShutdown();
       return;
     }
-    printf("Current fan control policy: %s\n", policy == NVML_FAN_POLICY_TEMPERATURE_CONTINOUS_SW ? "auto" : "manual");
+    printf("Current fan control policy: %s\n", policy == NVML_FAN_POLICY_TEMPERATURE_CONTINOUS_SW ? "NVML_FAN_POLICY_TEMPERATURE_CONTINOUS_SW" : "NVML_FAN_POLICY_MANUAL");
   }
 
   // Set fan control policy to manual
@@ -79,12 +77,12 @@ void fan_control_start(app_config_t *config)
     res = nvmlDeviceSetFanControlPolicy(device, i, NVML_FAN_POLICY_MANUAL);
     if (res != NVML_SUCCESS)
     {
-      fprintf(stderr, "Error: failed to set fan control policy. %s\n", nvmlErrorString(res));
+      fprintf(stderr, "Error: failed to set fan control policy to NVML_FAN_POLICY_MANUAL. %s\n", nvmlErrorString(res));
       nvmlShutdown();
       return;
     }
   }
-  printf("Fan control policy set to manual.\n");
+  printf("Fan control policy set to NVML_FAN_POLICY_MANUAL.\n");
 
   while (is_running)
   {
