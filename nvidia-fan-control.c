@@ -82,7 +82,7 @@ void fan_control_start(app_config_t *config)
       return;
     }
   }
-  printf("Fan control policy set to NVML_FAN_POLICY_MANUAL.\n");
+  printf("Fan control policy set to NVML_FAN_POLICY_MANUAL. Running...\n");
 
   while (is_running)
   {

@@ -1,5 +1,5 @@
-nvidia-fan-control
-==================
+# nvidia-fan-control
+
 A tiny C program to control fan speed of NVIDIA GPU
 
 - custom fan curve
@@ -9,21 +9,21 @@ A tiny C program to control fan speed of NVIDIA GPU
 
 See example.cfg for more information.
 
-Requirements
-------------
+## Requirements
+
 - NVML: https://developer.nvidia.com/management-library-nvml
 - libconfig
 
-Building and running tests
---------------------------
+## Building and running tests
+
 - `make` to build the program
 - `make test` to run the tests 
 
-Usage
------
-`./nvidia-fan-control example.cfg` to start the program
+## Usage
 
-Troubleshooting
----------------
+`./nvidia-fan-control example.cfg` to start the program. If you'd like run it as a systemd service, see [service.md](service.md).
+
+## Troubleshooting
+
 - if you get insufficient permissions error, try to run it as root
 - on some GPUs setting fan speed below 30% will take no effect
