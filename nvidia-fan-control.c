@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 {
   if (argc != 2)
   {
-    fprintf(stderr, "Usage: %s <config_file_path>\n", argv[0]);
+    fprintf(stderr, "Provide a config file. Usage: %s example.cfg\n", argv[0]);
     return EXIT_FAILURE;
   }
 
