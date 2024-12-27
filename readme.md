@@ -7,11 +7,11 @@ A tiny C program to control fan speed of NVIDIA GPU
 - graceful shutdown on system signals
 - restores fan control policy to NVML_FAN_POLICY_TEMPERATURE_CONTINOUS_SW (default) on exit
 
-See example.cfg for more information.
+See [example.cfg](example.cfg) for more information.
 
 ## Requirements
 
-- NVML: https://developer.nvidia.com/management-library-nvml
+- [NVML](https://developer.nvidia.com/management-library-nvml)
 - libconfig
 
 ## Building and running tests
@@ -21,7 +21,7 @@ See example.cfg for more information.
 
 ## Usage
 
-`./nvidia-fan-control example.cfg` to start the program. If you'd like run it as a systemd service, see [service.md](service.md).
+`build/nvidia-fan-control example.cfg` to start the program. If you'd like run it as a systemd service, see [service.md](service.md).
 
 ## Troubleshooting
 
