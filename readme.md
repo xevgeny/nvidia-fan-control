@@ -36,8 +36,3 @@ sudo make uninstall
 ```
 
 By default, the program will be installed to `/usr/local/bin` and the config file will be copied to `/etc/nvidia-fan-control/config.cfg`.
-
-## Troubleshooting
-
-- If you get insufficient permissions error, try to run it as root
-- On some GPUs setting fan speed below 30% will take no effect
