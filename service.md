@@ -6,8 +6,6 @@
 sudo make install
 ```
 
-By default, the program will be installed to `/usr/local/bin` and the config file will be installed to `/etc/nvidia-fan-control`.
-
 2. Create a new file at /etc/systemd/system/nvidia-fan-control.service:
 
 ```

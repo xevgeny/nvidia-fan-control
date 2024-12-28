@@ -30,17 +30,14 @@ See [example.cfg](example.cfg) for more information.
 sudo make install
 ```
 
-2. Custom installation:
-```
-sudo make install PREFIX=/usr/local SYSCONFDIR=/etc
-```
-
-3. Uninstall:
+2. Uninstall:
 ```
 sudo make uninstall
 ```
 
+By default, the program will be installed to `/usr/local/bin` and the config file will be copied to `/etc/nvidia-fan-control/config.cfg`.
+
 ## Troubleshooting
 
-- if you get insufficient permissions error, try to run it as root
-- on some GPUs setting fan speed below 30% will take no effect
+- If you get insufficient permissions error, try to run it as root
+- On some GPUs setting fan speed below 30% will take no effect
