@@ -82,8 +82,7 @@ app_config_t *config_load(const char *config_file)
         {
           fprintf(stderr, "Error: fan curve point must have exactly 2 values (temperature and fan speed)\n");
           config_destroy(&cfg);
-          free(config->fan_curve);
-          free(config);
+          config_free(config);
           return NULL;
         }
         int temp = config_setting_get_int_elem(pair, 0);
@@ -92,8 +91,7 @@ app_config_t *config_load(const char *config_file)
         {
           fprintf(stderr, "Error: temperature and fan speed values must be between 0 and 100\n");
           config_destroy(&cfg);
-          free(config->fan_curve);
-          free(config);
+          config_free(config);
           return NULL;
         }
         config->fan_curve[i][0] = (unsigned int)temp;
