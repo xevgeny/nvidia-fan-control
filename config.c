@@ -19,9 +19,11 @@ app_config_t *config_load(const char *config_file)
   {
     fprintf(stderr, "Error: Failed to read config file %s. %s\n", config_file, config_error_text(&cfg));
     config_destroy(&cfg);
+    config_free(config);
     return NULL;
   }
 
+  // Load device ID
   int device_id;
   if (config_lookup_int(&cfg, "device_id", &device_id))
   {
@@ -29,6 +31,7 @@ app_config_t *config_load(const char *config_file)
     {
       fprintf(stderr, "Error: device_id must be >= 0\n");
       config_destroy(&cfg);
+      config_free(config);
       return NULL;
     }
     config->device_id = (unsigned int)device_id;
@@ -37,9 +40,11 @@ app_config_t *config_load(const char *config_file)
   {
     fprintf(stderr, "Error: device_id is required\n");
     config_destroy(&cfg);
+    config_free(config);
     return NULL;
   }
 
+  // Load update interval
   int interval;
   if (config_lookup_int(&cfg, "interval", &interval))
   {
@@ -47,6 +52,7 @@ app_config_t *config_load(const char *config_file)
     {
       fprintf(stderr, "Error: interval must be between 1 and 60 seconds\n");
       config_destroy(&cfg);
+      config_free(config);
       return NULL;
     }
     config->interval = (unsigned int)interval;
@@ -55,48 +61,63 @@ app_config_t *config_load(const char *config_file)
   {
     fprintf(stderr, "Error: interval is required\n");
     config_destroy(&cfg);
+    config_free(config);
     return NULL;
   }
 
+  // Load fan curve
   config_setting_t *fan_curve_setting = config_lookup(&cfg, "fan_curve");
-  if (fan_curve_setting != NULL)
+  if (fan_curve_setting == NULL)
   {
-    size_t fan_curve_size = config_setting_length(fan_curve_setting);
-    unsigned int(*fan_curve)[2] = malloc(fan_curve_size * sizeof(*fan_curve));
-    if (!fan_curve)
-    {
-      fprintf(stderr, "Error: failed to allocate memory for fan curve\n");
-      config_destroy(&cfg);
-      return NULL;
-    }
+    fprintf(stderr, "Error: fan_curve is required\n");
+    config_destroy(&cfg);
+    config_free(config);
+    return NULL;
+  }
+  size_t fan_curve_size = config_setting_length(fan_curve_setting);
+  if (fan_curve_size < 2)
+  {
+    fprintf(stderr, "Error: fan_curve must have at least 2 points\n");
+    config_destroy(&cfg);
+    config_free(config);
+    return NULL;
+  }
 
-    config->fan_curve = fan_curve;
-    config->fan_curve_size = fan_curve_size;
+  unsigned int(*fan_curve)[2] = malloc(fan_curve_size * sizeof(*fan_curve));
+  if (!fan_curve)
+  {
+    fprintf(stderr, "Error: failed to allocate memory for fan curve\n");
+    config_destroy(&cfg);
+    config_free(config);
+    return NULL;
+  }
 
-    for (size_t i = 0; i < fan_curve_size; i++)
+  config->fan_curve = fan_curve;
+  config->fan_curve_size = fan_curve_size;
+
+  for (size_t i = 0; i < fan_curve_size; i++)
+  {
+    config_setting_t *pair = config_setting_get_elem(fan_curve_setting, i);
+    if (pair)
     {
-      config_setting_t *pair = config_setting_get_elem(fan_curve_setting, i);
-      if (pair)
+      if (config_setting_length(pair) != 2)
       {
-        if (config_setting_length(pair) != 2)
-        {
-          fprintf(stderr, "Error: fan curve point must have exactly 2 values (temperature and fan speed)\n");
-          config_destroy(&cfg);
-          config_free(config);
-          return NULL;
-        }
-        int temp = config_setting_get_int_elem(pair, 0);
-        int speed = config_setting_get_int_elem(pair, 1);
-        if (temp < 0 || temp > 100 || speed < 0 || speed > 100)
-        {
-          fprintf(stderr, "Error: temperature and fan speed values must be between 0 and 100\n");
-          config_destroy(&cfg);
-          config_free(config);
-          return NULL;
-        }
-        config->fan_curve[i][0] = (unsigned int)temp;
-        config->fan_curve[i][1] = (unsigned int)speed;
+        fprintf(stderr, "Error: fan curve point must have exactly 2 values (temperature and fan speed)\n");
+        config_destroy(&cfg);
+        config_free(config);
+        return NULL;
       }
+      int temp = config_setting_get_int_elem(pair, 0);
+      int speed = config_setting_get_int_elem(pair, 1);
+      if (temp < 0 || temp > 100 || speed < 0 || speed > 100)
+      {
+        fprintf(stderr, "Error: temperature and fan speed values must be between 0 and 100\n");
+        config_destroy(&cfg);
+        config_free(config);
+        return NULL;
+      }
+      config->fan_curve[i][0] = (unsigned int)temp;
+      config->fan_curve[i][1] = (unsigned int)speed;
     }
   }
 
