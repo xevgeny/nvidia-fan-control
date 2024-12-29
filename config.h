@@ -1,6 +1,18 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// Temperature limits (°C)
+#define MIN_TEMP 0
+#define MAX_TEMP 100
+
+// Fan speed limits (%)
+#define MIN_FAN_SPEED 0
+#define MAX_FAN_SPEED 100
+
+// Update interval limits (seconds)
+#define MIN_INTERVAL 1
+#define MAX_INTERVAL 10 
+
 /**
  * @struct app_config_t
  * @brief Configuration structure for the NVIDIA fan control application

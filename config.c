@@ -38,9 +38,9 @@ app_config_t *config_load(const char *config_file)
     config_destroy(&cfg);
     return NULL;
   }
-  if (interval < 1 || interval > 60)
+  if (interval < MIN_INTERVAL || interval > MAX_INTERVAL)
   {
-    fprintf(stderr, "Error: interval must be between 1 and 60 seconds\n");
+    fprintf(stderr, "Error: interval must be between %d and %d seconds\n", MIN_INTERVAL, MAX_INTERVAL);
     config_destroy(&cfg);
     return NULL;
   }
@@ -83,26 +83,32 @@ app_config_t *config_load(const char *config_file)
       {
         fprintf(stderr, "Error: fan curve point must have exactly 2 values (temperature and fan speed)\n");
         config_destroy(&cfg);
+        free(fan_curve);
         return NULL;
       }
       int temp = config_setting_get_int_elem(pair, 0);
       int speed = config_setting_get_int_elem(pair, 1);
-      if (temp < 0 || temp > 100 || speed < 0 || speed > 100)
+      if (temp < MIN_TEMP || temp > MAX_TEMP || speed < MIN_FAN_SPEED || speed > MAX_FAN_SPEED)
       {
-        fprintf(stderr, "Error: temperature and fan speed values must be between 0 and 100\n");
+        fprintf(stderr,
+                "Error: temperature must be between %d and %d°C, fan speed must be between %d and %d%%\n",
+                MIN_TEMP, MAX_TEMP, MIN_FAN_SPEED, MAX_FAN_SPEED);
         config_destroy(&cfg);
+        free(fan_curve);
         return NULL;
       }
       if (temp < prev_temp)
       {
         fprintf(stderr, "Error: temperature must be in ascending order\n");
         config_destroy(&cfg);
+        free(fan_curve);
         return NULL;
       }
       if (speed < prev_speed)
       {
         fprintf(stderr, "Error: fan speed must be in ascending order\n");
         config_destroy(&cfg);
+        free(fan_curve);
         return NULL;
       }
       fan_curve[i][0] = (unsigned int)temp;
@@ -140,6 +146,6 @@ void config_show(app_config_t *config)
 
 void config_free(app_config_t *config)
 {
-  if (config)
-    free(config);
+  free(config->fan_curve);
+  free(config);
 }
