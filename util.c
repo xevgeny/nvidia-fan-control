@@ -5,15 +5,10 @@ unsigned int calculate_fan_speed(unsigned int temp, const app_config_t *config)
 {
   const unsigned int(*fan_curve)[2] = config->fan_curve;
   const size_t curve_size = config->fan_curve_size;
-
-  // If temperature is below first point, return 0%
   if (temp < fan_curve[0][0])
     return 0;
-
-  // If temperature is above last point, return 100%
   if (temp > fan_curve[curve_size - 1][0])
     return 100;
-
   for (size_t i = 0; i < curve_size - 1; i++)
   {
     if (temp >= fan_curve[i][0] && temp <= fan_curve[i + 1][0])
@@ -24,6 +19,5 @@ unsigned int calculate_fan_speed(unsigned int temp, const app_config_t *config)
       return (unsigned int)(speed + 0.5f); // round to the nearest integer
     }
   }
-
   return fan_curve[0][1]; // this should never happen
 }

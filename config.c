@@ -5,13 +5,6 @@
 
 app_config_t *config_load(const char *config_file)
 {
-  app_config_t *config = malloc(sizeof(app_config_t));
-  if (!config)
-  {
-    fprintf(stderr, "Error: failed to allocate memory for config\n");
-    return NULL;
-  }
-
   config_t cfg;
   config_init(&cfg);
 
@@ -19,67 +12,53 @@ app_config_t *config_load(const char *config_file)
   {
     fprintf(stderr, "Error: Failed to read config file %s. %s\n", config_file, config_error_text(&cfg));
     config_destroy(&cfg);
-    config_free(config);
     return NULL;
   }
 
-  // Load device ID
+  // Read device ID
   int device_id;
-  if (config_lookup_int(&cfg, "device_id", &device_id))
-  {
-    if (device_id < 0)
-    {
-      fprintf(stderr, "Error: device_id must be >= 0\n");
-      config_destroy(&cfg);
-      config_free(config);
-      return NULL;
-    }
-    config->device_id = (unsigned int)device_id;
-  }
-  else
+  if (!config_lookup_int(&cfg, "device_id", &device_id))
   {
     fprintf(stderr, "Error: device_id is required\n");
     config_destroy(&cfg);
-    config_free(config);
+    return NULL;
+  }
+  if (device_id < 0)
+  {
+    fprintf(stderr, "Error: device_id must be >= 0\n");
+    config_destroy(&cfg);
     return NULL;
   }
 
-  // Load update interval
+  // Read update interval
   int interval;
-  if (config_lookup_int(&cfg, "interval", &interval))
-  {
-    if (interval < 1 || interval > 60)
-    {
-      fprintf(stderr, "Error: interval must be between 1 and 60 seconds\n");
-      config_destroy(&cfg);
-      config_free(config);
-      return NULL;
-    }
-    config->interval = (unsigned int)interval;
-  }
-  else
+  if (!config_lookup_int(&cfg, "interval", &interval))
   {
     fprintf(stderr, "Error: interval is required\n");
     config_destroy(&cfg);
-    config_free(config);
+    return NULL;
+  }
+  if (interval < 1 || interval > 60)
+  {
+    fprintf(stderr, "Error: interval must be between 1 and 60 seconds\n");
+    config_destroy(&cfg);
     return NULL;
   }
 
-  // Load fan curve
+  // Read fan curve setting
   config_setting_t *fan_curve_setting = config_lookup(&cfg, "fan_curve");
   if (fan_curve_setting == NULL)
   {
     fprintf(stderr, "Error: fan_curve is required\n");
     config_destroy(&cfg);
-    config_free(config);
     return NULL;
   }
+
   size_t fan_curve_size = config_setting_length(fan_curve_setting);
   if (fan_curve_size < 2)
   {
     fprintf(stderr, "Error: fan_curve must have at least 2 points\n");
     config_destroy(&cfg);
-    config_free(config);
     return NULL;
   }
 
@@ -88,13 +67,13 @@ app_config_t *config_load(const char *config_file)
   {
     fprintf(stderr, "Error: failed to allocate memory for fan curve\n");
     config_destroy(&cfg);
-    config_free(config);
     return NULL;
   }
 
-  config->fan_curve = fan_curve;
-  config->fan_curve_size = fan_curve_size;
+  int prev_temp = 0;
+  int prev_speed = 0;
 
+  // Validate fan curve
   for (size_t i = 0; i < fan_curve_size; i++)
   {
     config_setting_t *pair = config_setting_get_elem(fan_curve_setting, i);
@@ -104,7 +83,6 @@ app_config_t *config_load(const char *config_file)
       {
         fprintf(stderr, "Error: fan curve point must have exactly 2 values (temperature and fan speed)\n");
         config_destroy(&cfg);
-        config_free(config);
         return NULL;
       }
       int temp = config_setting_get_int_elem(pair, 0);
@@ -113,13 +91,40 @@ app_config_t *config_load(const char *config_file)
       {
         fprintf(stderr, "Error: temperature and fan speed values must be between 0 and 100\n");
         config_destroy(&cfg);
-        config_free(config);
         return NULL;
       }
-      config->fan_curve[i][0] = (unsigned int)temp;
-      config->fan_curve[i][1] = (unsigned int)speed;
+      if (temp < prev_temp)
+      {
+        fprintf(stderr, "Error: temperature must be in ascending order\n");
+        config_destroy(&cfg);
+        return NULL;
+      }
+      if (speed < prev_speed)
+      {
+        fprintf(stderr, "Error: fan speed must be in ascending order\n");
+        config_destroy(&cfg);
+        return NULL;
+      }
+      fan_curve[i][0] = (unsigned int)temp;
+      fan_curve[i][1] = (unsigned int)speed;
+      prev_temp = temp;
+      prev_speed = speed;
     }
   }
+
+  // Initialize config
+  app_config_t *config = malloc(sizeof(app_config_t));
+  if (!config)
+  {
+    fprintf(stderr, "Error: failed to allocate memory for config\n");
+    config_destroy(&cfg);
+    return NULL;
+  }
+
+  config->device_id = (unsigned int)device_id;
+  config->interval = (unsigned int)interval;
+  config->fan_curve = fan_curve;
+  config->fan_curve_size = fan_curve_size;
 
   config_destroy(&cfg);
   return config;
@@ -136,8 +141,5 @@ void config_show(app_config_t *config)
 void config_free(app_config_t *config)
 {
   if (config)
-  {
-    free(config->fan_curve);
     free(config);
-  }
 }
